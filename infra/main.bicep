@@ -102,16 +102,12 @@ module stg './modules/storage.bicep' = {
   }
 }
 
-// Generate a unique timestamp string in the format YYYYMMDDHHmmss
-var currentTime = utcNow('yyyyMMddHHmmss')
-
 // 2. Deploy Azure Function App (Used to handle Azure Alerts and Invoke GitHub Actions)
 // https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep
 module functionApp './modules/functionApp.bicep' = {
-  name: 'func-CJ-${amlworkspace}-${uniqueSuffix}-${currentTime}'
+  name: 'func-CJ-${amlworkspace}-${uniqueSuffix}'
   params: {
-    // The function name includes the unique suffix and the current timestamp to ensure uniqueness
-    functionname: 'func-${amlworkspace}-${uniqueSuffix}-${currentTime}'
+    functionname: 'func-${amlworkspace}-${uniqueSuffix}'
     location: resourceLocation
     existingStorageAccountName: stg.name
     gitHub_FunctionDeploymentZip: gitHub_FunctionDeploymentZip
