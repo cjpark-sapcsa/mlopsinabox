@@ -12,13 +12,16 @@ param aml_flow_deployment_name string
 param aml_endpoint_name string
 param aml_model_name string
 
-// This is the name of the function app that will be created by the Zip deployment, it's only available after the deployment
-// This value is hardcoded from the code itself, so it's not possible to get it from the deployment
 var functionAppName = 'AzureMLAlertHttpTrigger'
 
-//Storage Account
 resource discoveryStorage 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: existingStorageAccountName
+}
+
+// Create a separate resource to list keys for better dependency tracking
+resource storageKeys 'Microsoft.Storage/storageAccounts/listKeys@2023-01-01' = {
+  name: '${existingStorageAccountName}/listKeys'
+  scope: discoveryStorage
 }
 
 resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
@@ -31,7 +34,7 @@ resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
     family: 'Y'
     capacity: 0
   }
-  kind: 'functioapp'
+  kind: 'functionapp'
   properties: {
     perSiteScaling: false
     elasticScaleEnabled: false
@@ -45,6 +48,7 @@ resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
     zoneRedundant: false
   }
 }
+
 resource azfunctionsite 'Microsoft.Web/sites@2021-03-01' = {
   name: functionname
   location: location
@@ -56,7 +60,7 @@ resource azfunctionsite 'Microsoft.Web/sites@2021-03-01' = {
               name: '${functionname}.azurewebsites.net'
               sslState: 'Disabled'
               hostType: 'Standard'
-          }
+          },
           {
               name: '${functionname}.azurewebsites.net'
               sslState: 'Disabled'
@@ -110,11 +114,11 @@ resource azfunctionsiteconfig 'Microsoft.Web/sites/config@2021-03-01' = {
   name: 'appsettings'
   parent: azfunctionsite
   properties: {
-    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING:'DefaultEndpointsProtocol=https;AccountName=${discoveryStorage.name};AccountKey=${listKeys(discoveryStorage.id, discoveryStorage.apiVersion).keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-    AzureWebJobsStorage:'DefaultEndpointsProtocol=https;AccountName=${discoveryStorage.name};AccountKey=${listKeys(discoveryStorage.id, discoveryStorage.apiVersion).keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-    WEBSITE_CONTENTSHARE : discoveryStorage.name
-    FUNCTIONS_WORKER_RUNTIME:'powershell'
-    FUNCTIONS_EXTENSION_VERSION:'~4'
+    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${existingStorageAccountName};AccountKey=${storageKeys.properties.keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+    AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${existingStorageAccountName};AccountKey=${storageKeys.properties.keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+    WEBSITE_CONTENTSHARE: discoveryStorage.name
+    FUNCTIONS_WORKER_RUNTIME: 'powershell'
+    FUNCTIONS_EXTENSION_VERSION: '~4'
     gitHub_repoOwnerName: gitHub_repoOwnerName
     gitHub_repoName: gitHub_repoName
     gitHub_workflowId: gitHub_workflowId
@@ -134,8 +138,6 @@ resource deployfunctions 'Microsoft.Web/sites/extensions@2022-09-01' = {
   ]
   name: 'ZipDeploy'
   properties: {
-    //packageUri: '${discoveryStorage.properties.primaryEndpoints.blob}${discoveryContainerName}/${filename}?${(discoveryStorage.listAccountSAS(discoveryStorage.apiVersion, sasConfig).accountSasToken)}'
-    // https://github.com/Azure/AI-in-a-Box/raw/main/ml-in-a-box/infra/PSAzureMLAlertWebhook/AzureMLAlertWebhook.zip
     packageUri: gitHub_FunctionDeploymentZip
   }
 }
