@@ -46,19 +46,19 @@ resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 resource azfunctionsite 'Microsoft.Web/sites@2021-03-01' = {
-  name: 'aibx-mlw-cj'
+  name:  '${functionname}-app-cj'
   location: location
   kind: 'functionapp'
   properties: {
       enabled: true
       hostNameSslStates: [
           {
-              name: 'aibx-mlw-cj.azurewebsites.net'
+              name: '${functionname}-app-cj'
               sslState: 'Disabled'
               hostType: 'Standard'
           }
           {
-              name: 'aibx-mlw-cj.azurewebsites.net'
+              name: '${functionname}-app-cj'
               sslState: 'Disabled'
               hostType: 'Repository'
           }
