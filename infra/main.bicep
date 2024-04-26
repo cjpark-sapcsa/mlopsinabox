@@ -102,7 +102,8 @@ module stg './modules/storage.bicep' = {
   }
 }
 
-// 2. Deploy Azure Function App (Used to handle Azure Alerts and Invoke GitHub Actions)
+//2. Deploy Azure Function App (Used to handle Azure Alerts and Invoke GitHub Actions)
+// https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep
 module functionApp './modules/functionApp.bicep' = {
   name: 'func-${amlworkspace}-${uniqueSuffix}'
   params: {
@@ -121,7 +122,6 @@ module functionApp './modules/functionApp.bicep' = {
     aml_model_name: aml_model_name
   }
 }
-
 
 //3. Deploy Application Insights Instance
 //https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/components?pivots=deployment-language-bicep
