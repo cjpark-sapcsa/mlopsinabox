@@ -46,7 +46,7 @@ resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 resource azfunctionsite 'Microsoft.Web/sites@2021-03-01' = {
-  name:  functionname
+  name: functionname
   location: location
   kind: 'functionapp'
   properties: {
