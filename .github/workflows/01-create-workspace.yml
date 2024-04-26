@@ -12,12 +12,12 @@ on:
       resource_group:
         description: 'Resource group name'
         required: true
-        default: 'rg-aibx-ml'
+        default: 'rg-aibx-ml-cj'
         type: string
       aml_workspace:
         description: 'Azure Machine Learning workspace name'
         required: true
-        default: 'aibx-mlw'
+        default: 'aibx-mlw-cj'
         type: string
 
 env:
