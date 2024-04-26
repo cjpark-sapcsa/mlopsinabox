@@ -22,7 +22,7 @@ resource discoveryStorage 'Microsoft.Storage/storageAccounts@2023-01-01' existin
 }
 
 resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: '${functionname}-farm'
+  name: '${functionname}-farm-cj'
   location: location
   sku: {
     name: 'Y1'
