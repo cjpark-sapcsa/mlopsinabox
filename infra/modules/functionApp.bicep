@@ -22,7 +22,7 @@ resource discoveryStorage 'Microsoft.Storage/storageAccounts@2023-01-01' existin
 }
 
 resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: '${functionname}-farm-cj'
+  name: '${functionname}-farm'
   location: location
   sku: {
     name: 'Y1'
@@ -46,19 +46,19 @@ resource serverfarm 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 resource azfunctionsite 'Microsoft.Web/sites@2021-03-01' = {
-  name:  '${functionname}-app-cj'
+  name:  functionname
   location: location
   kind: 'functionapp'
   properties: {
       enabled: true
       hostNameSslStates: [
           {
-              name: '${functionname}-app-cj'
+              name: '${functionname}.azurewebsites.net'
               sslState: 'Disabled'
               hostType: 'Standard'
           }
           {
-              name: '${functionname}-app-cj'
+              name: '${functionname}.azurewebsites.net'
               sslState: 'Disabled'
               hostType: 'Repository'
           }
